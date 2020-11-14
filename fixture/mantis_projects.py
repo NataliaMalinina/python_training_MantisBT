@@ -1,7 +1,10 @@
 from models.projects import Projects
 from selenium.webdriver.support.ui import Select
 
+
 class ProjectHelper:
+
+    project_cache = None
 
     def __init__(self, app):
         self.app = app
@@ -12,19 +15,15 @@ class ProjectHelper:
                 (wd.current_url.endswith("/mantisbt-1.2.20/my_view_page.php")):
             wd.find_element_by_link_text("My View").click()
 
-    def manage(self, password='root'):
+    def manage(self):
         wd = self.app.wd
         self.open_home_page()
         wd.find_element_by_link_text("Manage").click()
-        #wd.find_element_by_css_selector("a[href='/mantisbt-1.2.20/manage_overview_page.php']").click()
-        #wd.find_element_by_name("password").send_keys("%s" % password)
 
-    def manage_projects(self):
+    def manage_projects(self, password='root'):
         wd = self.app.wd
-        self.manage(password='root')
+        self.manage()
         wd.find_element_by_link_text("Manage Projects").click()
-        #wd.find_element_by_css_selector("a[href='/mantisbt-1.2.20/manage_proj_page.php]").click()
-
 
     def create_new_project(self):
         wd = self.app.wd
@@ -34,6 +33,7 @@ class ProjectHelper:
                                            inherit_global="true", view_state="public", description="nani"))
         wd.find_element_by_xpath("//input[@value='Add Project']").click()
         self.open_home_page()
+        self.project_cache = None
 
 
     def change_field_value(self, field_name, text):
@@ -59,6 +59,45 @@ class ProjectHelper:
         wd = self.app.wd
         if text is not None:
             Select(wd.find_element_by_name(field_name)).select_by_value('10')
+
+    def get_project_list(self):
+        if self.project_cache is None:
+            wd = self.app.wd
+            self.manage_projects()
+            self.project_cache = []
+            for element in wd.find_elements_by_css_selector("body > table:nth-child(6) > tbody > tr.row-1"):
+                cells = element.find_elements_by_tag_name("td")
+                name = cells[0].text
+                status = cells[1].text
+                enabled = cells[2].text
+                view_state = cells[3].text
+                description = cells[4].text
+                self.project_cache.append(Projects(name=name, status=status, enabled=enabled,
+                                    view_state=view_state, description=description))
+        return list(filter(None, self.project_cache))
+
+    def get_project_from_row(self):
+        wd = self.app.wd
+        try:
+            elements = wd.find_elements_by_css_selector("body > table:nth-child(6) > tbody > tr.row-1 [href]")
+            for element in elements:
+                element.click()
+        finally:
+            pass
+        #wd.find_element_by_partial_link_text("/manage_proj_edit_page.php?project").click()
+
+    def delete_project(self):
+        wd = self.app.wd
+        self.open_home_page()
+        self.manage_projects()
+        self.get_project_from_row()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+
+
+
+
+
 
 
 
