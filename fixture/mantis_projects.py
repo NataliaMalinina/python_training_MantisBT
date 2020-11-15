@@ -25,13 +25,19 @@ class ProjectHelper:
         self.manage()
         wd.find_element_by_link_text("Manage Projects").click()
 
-    def create_new_project(self):
+    def create_new_project(self, projects):
         wd = self.app.wd
         self.manage_projects()
         wd.find_element_by_xpath("//input[@value='Create New Project']").click()
-        self.fill_in_form_project(Projects(name="uter", status="development",
-                                           inherit_global="true", view_state="public", description="nani"))
+        self.fill_in_form_project(Projects(name=projects.name, status=projects.status,
+                inherit_global=projects.inherit_global, view_state=projects.view_state, description=projects.description))
         wd.find_element_by_xpath("//input[@value='Add Project']").click()
+        if wd.find_elements_by_css_selector("body > div:nth-child(5) > table > tbody > tr:nth-child(1) > td"):
+            self.manage_projects()
+            wd.find_element_by_xpath("//input[@value='Create New Project']").click()
+            self.fill_in_form_project(Projects(name=projects.name, status=projects.status,
+                inherit_global=projects.inherit_global, view_state=projects.view_state, description=projects.description))
+            wd.find_element_by_xpath("//input[@value='Add Project']").click()
         self.open_home_page()
         self.project_cache = None
 
@@ -65,34 +71,50 @@ class ProjectHelper:
             wd = self.app.wd
             self.manage_projects()
             self.project_cache = []
-            for element in wd.find_elements_by_css_selector("body > table:nth-child(6) > tbody > tr.row-1"):
-                cells = element.find_elements_by_tag_name("td")
-                name = cells[0].text
-                status = cells[1].text
-                enabled = cells[2].text
-                view_state = cells[3].text
-                description = cells[4].text
-                self.project_cache.append(Projects(name=name, status=status, enabled=enabled,
-                                    view_state=view_state, description=description))
+            elements = wd.find_elements_by_xpath("/html/body/table[3]/tbody/tr")
+            for element in elements:
+                if element.get_attribute("class") not in ('', 'row-category'):
+                    cells = element.find_elements_by_tag_name("td")
+                    name = cells[0].text
+                    status = cells[1].text
+                    enabled = cells[2].text
+                    view_state = cells[3].text
+                    description = cells[4].text
+                    self.project_cache.append(Projects(name=name, status=status, enabled=enabled,
+                                        view_state=view_state, description=description))
         return list(filter(None, self.project_cache))
 
     def get_project_from_row(self):
         wd = self.app.wd
         try:
-            elements = wd.find_elements_by_css_selector("body > table:nth-child(6) > tbody > tr.row-1 [href]")
+            elements = wd.find_elements_by_css_selector("body > table:nth-child(6) > tbody > tr:nth-child(3) > td:nth-child(1) [href]")
             for element in elements:
                 element.click()
         finally:
             pass
-        #wd.find_element_by_partial_link_text("/manage_proj_edit_page.php?project").click()
 
     def delete_project(self):
         wd = self.app.wd
         self.open_home_page()
         self.manage_projects()
+        element = wd.find_element_by_xpath("/html/body/table[3]/tbody/tr[3]")
+        if element.get_attribute("class") not in ('', 'row-category'):
+            cells = element.find_elements_by_tag_name("td")
+            name = cells[0].text
+            status = cells[1].text
+            enabled = cells[2].text
+            view_state = cells[3].text
+            description = cells[4].text
         self.get_project_from_row()
         wd.find_element_by_xpath("//input[@value='Delete Project']").click()
         wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+        return Projects(name=name, status=status, enabled=enabled,view_state=view_state, description=description)
+
+    def count(self):
+        wd = self.app.wd
+        self.open_home_page()
+        self.manage_projects()
+        return len(wd.find_elements_by_xpath("/html/body/table[3]/tbody/tr"))
 
 
 
