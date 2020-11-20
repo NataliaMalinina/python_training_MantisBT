@@ -24,8 +24,8 @@ def config(request):
 def app(request, config):
     global fixture
     browser = request.config.getoption("--browser")
-    if fixture is None or not fixture.is_valid:
-        fixture = Application(browser=browser, base_url=config['web']['baseUrl']) #создаём фикстуру если она None или не валидная
+    if fixture is None or not fixture.is_valid():
+        fixture = Application(browser=browser, config=config) #создаём фикстуру если она None или не валидная
     return fixture
 
 @pytest.fixture(scope="session", autouse=True)

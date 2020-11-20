@@ -2,10 +2,13 @@ from selenium import webdriver
 from fixture.session import SessionHelper
 from fixture.mantis_projects import ProjectHelper
 from fixture.soap import SoapHelper
+from fixture.james import JamesHelper
+from fixture.mail import MailHelper
+from fixture.signup import SignupHelper
 
 class Application:
 
-    def __init__(self, browser, base_url):
+    def __init__(self, browser, config):
         if browser == "firefox":
             self.wd = webdriver.Firefox()
         elif browser == "chrome":
@@ -17,8 +20,12 @@ class Application:
         self.wd.implicitly_wait(1)
         self.session = SessionHelper(self)
         self.mantis_projects = ProjectHelper(self)
+        self.james = JamesHelper(self)
         self.soap = SoapHelper(self)
-        self.base_url = base_url
+        self.mail = MailHelper(self)
+        self.signup = SignupHelper(self)
+        self.config = config
+        self.base_url = config['web']['baseUrl']
 
     def is_valid(self):
         try:
