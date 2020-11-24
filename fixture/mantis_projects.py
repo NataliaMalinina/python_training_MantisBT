@@ -37,13 +37,13 @@ class ProjectHelper:
         wd = self.app.wd
         wd.find_element_by_xpath("//input[@value='Create New Project']").click()
         self.fill_in_form_project(Projects(name=projects.name, status=projects.status,
-                                           view_state=projects.view_state, description=projects.description))
+                                           view_state=projects.view_state))
         wd.find_element_by_xpath("//input[@value='Add Project']").click()
         if wd.find_elements_by_css_selector("body > div:nth-child(5) > table > tbody > tr:nth-child(1) > td"):
             self.manage_projects()
             wd.find_element_by_xpath("//input[@value='Create New Project']").click()
             self.fill_in_form_project(Projects(name=projects.name, status=projects.status,
-                inherit_global=projects.inherit_global, view_state=projects.view_state, description=projects.description))
+                inherit_global=projects.inherit_global, view_state=projects.view_state))
             wd.find_element_by_xpath("//input[@value='Add Project']").click()
         self.open_home_page()
         self.project_cache = None
@@ -87,9 +87,8 @@ class ProjectHelper:
                     status = cells[1].text
                     enabled = cells[2].text
                     view_state = cells[3].text
-                    description = cells[4].text
                     self.project_cache.append(Projects(name=name, status=status, enabled=enabled,
-                                        view_state=view_state, description=description))
+                                        view_state=view_state))
         return list(filter(None, self.project_cache))
 
     def get_project_from_row(self, project):
