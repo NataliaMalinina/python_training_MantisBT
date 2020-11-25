@@ -10,7 +10,7 @@ def random_project_name(prefix, maxlen):
 
 
 def test_add_project(app):
-    project_name = random_project_name("project", 12)
+    project_name = random_project_name("project", 13)
     add_project = Projects(name=project_name, status='development', view_state='public')
     app.mantis_projects.autorization()
     app.mantis_projects.manage_projects()
