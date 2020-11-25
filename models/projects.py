@@ -1,4 +1,3 @@
-from sys import maxsize
 
 
 class Projects:
@@ -14,11 +13,13 @@ class Projects:
         return "%s:%s;%s;%s;" % (self.name, self.status, self.inherit_global,
                                 self.view_state)
 
+
     def __eq__(self, other):
         return (self.name == other.name or self.name is None or other.name is None) \
                and self.status == other.status and self.inherit_global == other.inherit_global \
-               and self.view_state == other.view_state and self.enabled == other.enabled
+               and self.view_state == other.view_state
 
     def sorted_name(self):
         if self.name:
             return self.name
+

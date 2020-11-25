@@ -1,7 +1,6 @@
 from models.projects import Projects
 import string
 import random
-#from random import randint
 
 
 def random_project_name(prefix, maxlen):
@@ -22,7 +21,6 @@ def test_add_project(app):
     assert sorted(old_list, key=Projects.sorted_name) == sorted(new_list, key=Projects.sorted_name)
     soap_projects = app.soap.get_list_from_soap("administrator", "root")
     assert len(soap_projects) == len(new_list)
-
 
 
 
